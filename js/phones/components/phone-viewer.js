@@ -1,6 +1,61 @@
 import Component from './component.js';
+import ShoppingCart from './shopping-cart.js';
 
 export default class PhoneViewer extends Component {
+    constructor({
+        element,
+        items = [],
+     }) {
+      super({ element });
+
+      this.on('click', '[data-element="back-button"]', () => {
+        this.emit('back');
+      });
+
+      this.on('click', '[data-element ="basket-button"]', () => { // ADDED BY ME
+          console.log('Add to basket from viewer', this._phoneDetails.name);
+
+          items.push(this._phoneDetails.name);
+          console.log(items);
+          displayCart();
+
+      });
+      function displayCart() {
+          let cartdata = `
+          <table>
+
+          `;
+
+          let total = 0;
+
+          for (let i = 0; i < items.length; i++) {
+
+              cartdata += `<tr><td>` + items[i] + `</td><td>` +
+
+              `<button>Delete</button>
+              </td></tr>`
+          }
+
+          cartdata += `<tr><td></td><td></td><td></td><td></td></tr></table>`;
+
+          document.querySelector('[data-component="shopping-cart"]').innerHTML = cartdata
+      }
+
+
+
+
+
+
+      // basket.addEventListener('click', (event) => {
+      //     console.log(`Added from VIEWER: ${this._phoneDetails.name}` );
+      // })
+
+      this.on('click', '[data-element="small-preview"]', (event) => {
+        const bigPreview = this._element.querySelector('[data-element="big-preview"]');
+        bigPreview.src = event.target.src;
+      })
+
+    }
 
     show(phoneDetails) {
         this._phoneDetails = phoneDetails;
@@ -10,35 +65,27 @@ export default class PhoneViewer extends Component {
 
     _render() {
         this._element.innerHTML = `
-        <img class="phone" src="${this._phoneDetails.images[0]}">
+        <img
+        data-element="big-preview"
+        class="phone"
+        src="${this._phoneDetails.images[0]}"
+        >
+        <button data-element="back-button">Back</button>
+        <button data-element ="basket-button">Add to basket</button>
 
-        <button>Back</button>
-        <button>Add to basket</button>
-    
-    
         <h1>${this._phoneDetails.name}</h1>
-    
+
         <p>Motorola XOOM with Wi-Fi has a super-powerful dual-core processor and Android™ 3.0 (Honeycomb) — the Android platform designed specifically for tablets. With its 10.1-inch HD widescreen display, you’ll enjoy HD video in a thin, light, powerful and upgradeable tablet.</p>
-    
+
         <ul class="phone-thumbs">
+          ${this._phoneDetails.images.map(imageUrl => `
           <li>
-            <img src="img/phones/motorola-xoom-with-wi-fi.0.jpg">
+            <img
+            src="${imageUrl}"
+            data-element="small-preview"
+            >
           </li>
-          <li>
-            <img src="img/phones/motorola-xoom-with-wi-fi.1.jpg">
-          </li>
-          <li>
-            <img src="img/phones/motorola-xoom-with-wi-fi.2.jpg">
-          </li>
-          <li>
-            <img src="img/phones/motorola-xoom-with-wi-fi.3.jpg">
-          </li>
-          <li>
-            <img src="img/phones/motorola-xoom-with-wi-fi.4.jpg">
-          </li>
-          <li>
-            <img src="img/phones/motorola-xoom-with-wi-fi.5.jpg">
-          </li>
+          `).join('')}
         </ul>
         `
     }
